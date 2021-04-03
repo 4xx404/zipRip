@@ -3,6 +3,8 @@
 
 import sys, os, time
 import zipfile
+import random
+import string
 
 class bc:
 	GC = '\033[1;39m'
@@ -85,6 +87,9 @@ def zipRip():
 	
 	try:
 		if(zipFile.endswith('.zip')):
+			N = 8
+			res = ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
+			zipExtractPath = 'extracted/' + res
 			fileDATA = []
 			for word in passwords:
 				os.system(clr)
@@ -94,7 +99,6 @@ def zipRip():
 				try:
 					print(bc.BC + triesBanner + ' Trying Password: ' + bc.GC + str(passwd.decode('utf-8')))
 					with zipfile.ZipFile(zipFile, 'r') as zf:
-						zipExtractPath = 'extracted/'
 						zf.extractall(path=zipExtractPath, pwd=passwd)
 						data = zf.namelist()
 						for d in data:
