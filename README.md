@@ -1,5 +1,5 @@
 # zipRip  
-zipRip is a Password Cracking & Extractor tool for .zip files.  
+zipRip is a Password Cracking & Extractor tool for .zip files. It will crack the password then automatically extract & display the contents/file size.  
 
 # Usage  
 ```
