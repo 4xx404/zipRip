@@ -87,9 +87,8 @@ def zipRip():
 	
 	try:
 		if(zipFile.endswith('.zip')):
-			N = 8
-			res = ''.join(random.choices(string.ascii_uppercase + string.digits, k = N))
-			zipExtractPath = 'extracted/' + res
+			dirName = zipFile.split('.')[0]
+			zipExtractPath = 'extracted/' + dirName
 			fileDATA = []
 			for word in passwords:
 				os.system(clr)
@@ -137,5 +136,6 @@ def zipRip():
 		os.system(clr)
 		print(banner)
 		zipRip()
+
 if __name__ == '__main__':
 	zipRip()
