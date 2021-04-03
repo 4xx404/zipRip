@@ -88,6 +88,7 @@ def zipRip():
 			dirName = zipFile.split('.')[0]
 			zipExtractPath = 'extracted/' + dirName
 			fileDATA = []
+			
 			for word in passwords:
 				os.system(clr)
 				print(banner)
@@ -102,12 +103,13 @@ def zipRip():
 							data_size = zf.getinfo(d).file_size
 							fileinfo = str(d) + ':#:' + str(data_size) + 'kb' 
 							fileDATA.append(fileinfo)
-						break
+							break
 				except Exception:
 					print(eBan + bc.RC + ' ' + str(passwd.decode('utf-8')))
 					time.sleep(0.1)
 					tries += 1
 					continue
+			
 
 			os.system(clr)
 			print(banner)
@@ -115,12 +117,18 @@ def zipRip():
 			print(bc.BC + ' Zip File: ' + bc.GC + zipFile)
 			print('\n' + sBan + ' Password Found: ' + bc.GC + str(passwd.decode('utf-8')))
 			print(bc.BC + '\n Contents Information:')
+
+			fileCount = 1
+
 			for dat in fileDATA:
 				file = dat.split(':#:')[0]
 				size = dat.split(':#:')[1]
-				print('\t' + sBan + ' File: ' + bc.GC + str(file))
-				print('\t' + sBan + ' Size: ' + bc.GC + str(size) + '\n')
-
+				print(bc.BC + '\t [' + bc.GC + 'File ' + str(fileCount) + bc.BC + ']: ' + bc.GC + str(file))
+				print(bc.BC + '\t [' + bc.GC + 'Size' + bc.BC + ']: ' + bc.GC + str(size) + '\n')
+				fileCount += 1
+			
+			print(sBan + ' Extraction Complete\n')
+			zipRip()
 		else:
 			os.system(clr)
 			print(banner)
