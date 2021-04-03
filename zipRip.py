@@ -94,7 +94,8 @@ def zipRip():
 				try:
 					print(bc.BC + triesBanner + ' Trying Password: ' + bc.GC + str(passwd.decode('utf-8')))
 					with zipfile.ZipFile(zipFile, 'r') as zf:
-						zf.extractall(pwd=passwd)
+						zipExtractPath = 'extracted/'
+						zf.extractall(path=zipExtractPath, pwd=passwd)
 						data = zf.namelist()
 						for d in data:
 							data_size = zf.getinfo(d).file_size
