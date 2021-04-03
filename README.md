@@ -8,5 +8,4 @@ cd zipRip
 sudo python3 zipRip.py
 ```
   
-Extracted files will be saved in "extracted/key/".  
-* Key format 00000000
+Extracted files will be saved in "extracted/fileName/"
