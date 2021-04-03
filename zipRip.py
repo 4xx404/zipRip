@@ -3,8 +3,6 @@
 
 import sys, os, time
 import zipfile
-import random
-import string
 
 class bc:
 	GC = '\033[1;39m'
