@@ -1,147 +1,146 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys, os, time
-import zipfile
+import sys, os, time, zipfile
+sys.dont_write_bytecode = True
 
-class bc:
-	GC = '\033[1;39m'
-	BC = '\033[1;34m'
-	RC = '\033[1;31m'
+from Core.Stylesheet.Styling import sd, bc
+from Core.Console import Console
+from Core.Commands import Command
+from Core.Validity import Validation
 
-author = bc.BC + "\n Author: " + bc.RC + "4" + bc.GC + "x" + bc.BC + "x" + bc.RC + "4" + bc.GC + "0" + bc.BC + "4\n"
-version = bc.BC + " Version: " + bc.RC + "1" + bc.GC + "." + bc.BC + "0\n"
-github = bc.BC + " Github: " + bc.RC + "h" + bc.GC + "t" + bc.BC + "t" + bc.RC + "p" + bc.GC + "s" + bc.BC + ":" + bc.RC + "/" + bc.GC + "/" + bc.BC + "g" + bc.RC + "i" + bc.GC + "t" + bc.BC + "h" + bc.RC + "u" + bc.GC + "b" + bc.BC + "." + bc.RC + "c" + bc.GC + "o" + bc.BC + "m" + bc.RC + "/" + bc.GC + "4" + bc.BC + "x" + bc.RC + "x" + bc.GC + "4" + bc.BC + "0" + bc.RC + "4\n"
+class ZipRip:
+	def __init__(self):
+		self.Console = Console()
+		self.Cmd = Command()
+		self.Validator = Validation()
 
-banner = bc.RC + '''
-                (                
-''' + bc.GC + '''                )\ )             
-''' + bc.BC + '''     (         (()/( (           
-''' + bc.RC + '''  (  )\   ) )   )(_)))\   ) )    
-''' + bc.GC + '''  )\((_) /(/(  (_)) ((_) /(/(    
-''' + bc.BC + ''' ((_)(_)((_)_\ | _ \ (_)((_)_\   
-''' + bc.RC + ''' |_ /| || '_ \)|   / | || '_ \)  
-''' + bc.GC + ''' /__||_|| .__/ |_|_\ |_|| .__/   
-''' + bc.BC + '''        |_|             |_|      
-''' + author + version + github
+		self.Wordlist = ""
+		self.ZipFile = ""
+		self.ExtractToPath = ""
+		self.Passwords = []
 
-iBan = bc.BC + " [" + bc.GC + "?" + bc.BC + "]"
-sBan = bc.BC + " [" + bc.GC + u'\u2713' + bc.BC + "]"
-eBan = bc.BC + " [" + bc.RC + u'\u2717' + bc.BC + "]"
+		self.Tries = 1
+		self.FoundPassword = ""
+		self.ResponseData = []
 
-clr = 'clear'  
-os.system(clr)
-print(banner)
+	def SetWordlist(self):
+		Wordlist = str(input(f"{bc.BC} Password Wordlist: {bc.GC}"))
 
-def zipRip():
-	try:
-		wordlist = str(input(bc.BC + ' Password Wordlist: ' + bc.GC))
-		if(wordlist == ''):
-			os.system(clr)
-			print(banner)
-			print(eBan + bc.RC + ' ERROR: ' + bc.BC + ' Password Wordlist value cannot be empty\n')
-			time.sleep(1)
-			zipRip()
-		else:
-			pass
-	except KeyboardInterrupt:
-		os.system(clr)
-		print(banner)
-		print(bc.BC + ' Closing zipRip...')
-		time.sleep(1)
-		os.system(clr)
-		print(banner)
-		quit()
+		if (not self.Validator.NotEmpty(Wordlist)):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} Password wordlist is required\n", True)
 
-	try:
-		zipFile = str(input(bc.BC + ' Zip File: ' + bc.GC))
-		if(zipFile == ''):
-			os.system(clr)
-			print(banner)
-			print(eBan + bc.RC + ' ERROR: ' + bc.BC + ' Zip File value cannot be empty\n')
-			time.sleep(1)
-			zipRip()
-		else:
-			pass
-	except KeyboardInterrupt:
-		os.system(clr)
-		print(banner)
-		print(bc.BC + ' Closing zipRip...')
-		time.sleep(1)
-		os.system(clr)
-		print(banner)
-		quit()
+		elif (not os.path.isfile(Wordlist)):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} No wordlist named {bc.RC}{Wordlist}{bc.BC} exists\n", True)
 
-	try:
-		passwords = open(wordlist, 'rb')
-	except Exception:
-		os.system(clr)
-		print(banner)
-		print(eBan + bc.RC + ' ERROR: ' + bc.BC + ' Failed to open Password Wordlist: ' + bc.RC + wordlist + '\n')
-		time.sleep(1)
-		zipRip()
+		self.Wordlist = Wordlist
 
-	tries = 1
-	
-	try:
-		if(zipFile.endswith('.zip')):
-			dirName = zipFile.split('.')[0]
-			zipExtractPath = 'extracted/' + dirName
-			fileDATA = []
-			
-			for word in passwords:
-				os.system(clr)
-				print(banner)
-				passwd = word.strip()
-				triesBanner = bc.BC + ' [' + bc.GC + str(tries) + bc.BC + ']'
+	def SetZipFile(self):
+		ZipFile = str(input(f"{bc.BC} Zip File: {bc.GC}"))
+
+		if(not self.Validator.NotEmpty(ZipFile)):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} Zip File is required\n", True)
+
+		elif (not ZipFile.endswith(".zip")):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} file {bc.RC}{ZipFile}{bc.BC} is not a .zip file", True)
+
+		elif (not os.path.isfile(ZipFile)):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} no zip file named {bc.RC}{ZipFile}{bc.BC} exists\n", True)
+
+		self.ZipFile = ZipFile
+
+	def SetZipFileDirectory(self):
+		if (not self.Validator.NotEmpty(self.ZipFile)):
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} could not establish zip file directory", True)
+
+		self.ExtractToPath = os.path.splitext(os.path.basename(self.ZipFile))[0]
+
+	def SetPasswords(self):
+		try:
+			with open(self.Wordlist, "rb") as PasswordWordlist:
+				self.Passwords = [Line.strip() for Line in PasswordWordlist if (Line.strip())]
+		except Exception:
+			self.Cmd.Clear(f"{sd.eBan}{bc.BC} Failed to open Password Wordlist: {bc.RC} {self.Wordlist}\n", True)
+		
+	def CrackPassword(self):
+		if (self.Validator.NotEmpty(self.Passwords)):
+			for Password in self.Passwords:
+				if (self.Validator.NotEmpty(self.FoundPassword)):
+					break
+
+				PasswordString = Password.decode("utf-8", errors="ignore")
+
+				self.Console.Raw(f"[{bc.GC}{self.Tries}{bc.BC}] Trying Password:{bc.GC} {PasswordString}")
+
 				try:
-					print(bc.BC + triesBanner + ' Trying Password: ' + bc.GC + str(passwd.decode('utf-8')))
-					with zipfile.ZipFile(zipFile, 'r') as zf:
-						zf.extractall(path=zipExtractPath, pwd=passwd)
-						data = zf.namelist()
-						for d in data:
-							data_size = zf.getinfo(d).file_size
-							fileinfo = str(d) + ':#:' + str(data_size) + 'kb' 
-							fileDATA.append(fileinfo)
-							break
-				except Exception:
-					print(eBan + bc.RC + ' ' + str(passwd.decode('utf-8')))
-					time.sleep(0.1)
-					tries += 1
-					continue
+					with zipfile.ZipFile(self.ZipFile, "r") as ZF:						
+						os.makedirs(self.ExtractToPath, exist_ok=True)
+
+						for Member in ZF.infolist():
+							if (Member.is_dir()):
+								continue # skip directories
+
+							OriginalName = Member.filename
+							FileName = os.path.basename(OriginalName)
+
+							if (not FileName):
+								continue # skip if no valid filename
+
+							TargetPath = os.path.join(self.ExtractToPath, FileName)
+
+							with ZF.open(Member, pwd=Password) as Source, open(TargetPath, "wb") as Target:
+								Target.write(Source.read())
+
+							FileSize = round(os.path.getsize(TargetPath) / 1024, 2)
+							FileInfo = f"{FileName}:#:{FileSize} KB"
+							self.ResponseData.append(FileInfo)
+
+						self.FoundPassword = PasswordString
+
+				except RuntimeError as e:
+					if ("Bad password" in str(e)):
+						self.Tries += 1
+
+						continue
+
+	def DisplayResults(self):
+		self.Cmd.Clear()
+		self.Console.Raw(f"Password Wordlist:{bc.GC} {self.Wordlist}", False)
+		self.Console.Raw(f"Zip File:{bc.GC} {self.ZipFile}")
+		self.Console.Success(f"Password Found:{bc.GC} {self.FoundPassword}")
+		self.Console.Raw(f"Extracted Contents:")
+
+		FileCount = 1
+
+		for Dat in self.ResponseData:
+			Dat = str(Dat)
+
+			File = Dat.split(':#:')[0]
+			Size = Dat.split(':#:')[1]
 			
+			self.Console.Raw(f"[{bc.GC}File {FileCount}{bc.BC}]:{bc.GC} {File}", False, True)
+			self.Console.Raw(f"[{bc.GC}Size{bc.BC}]:{bc.GC} {Size}", True, True)
 
-			os.system(clr)
-			print(banner)
-			print(bc.BC + ' Password Wordlist: ' + bc.GC + wordlist)
-			print(bc.BC + ' Zip File: ' + bc.GC + zipFile)
-			print('\n' + sBan + ' Password Found: ' + bc.GC + str(passwd.decode('utf-8')))
-			print(bc.BC + '\n Contents Information:')
+			FileCount += 1
+		
+		self.Console.Success(f"Extraction Complete")
 
-			fileCount = 1
+		Initiate()
 
-			for dat in fileDATA:
-				file = dat.split(':#:')[0]
-				size = dat.split(':#:')[1]
-				print(bc.BC + '\t [' + bc.GC + 'File ' + str(fileCount) + bc.BC + ']: ' + bc.GC + str(file))
-				print(bc.BC + '\t [' + bc.GC + 'Size' + bc.BC + ']: ' + bc.GC + str(size) + '\n')
-				fileCount += 1
-			
-			print(sBan + ' Extraction Complete\n')
-			zipRip()
-		else:
-			os.system(clr)
-			print(banner)
-			print(eBan + bc.RC + ' ERROR: ' + zipFile + bc.BC + ' does not have a .zip extension\n')
-			time.sleep(1)
-			zipRip()
-	except KeyboardInterrupt:
-		print(bc.BC + '\n Stopping zipRip Cracker...\n')
-		time.sleep(1)
-		input(bc.BC + ' Press Enter to Continue...')
-		os.system(clr)
-		print(banner)
-		zipRip()
+	def Rip(self):
+		self.SetWordlist()
+		self.SetZipFile()
+		self.SetZipFileDirectory()
+		self.SetPasswords()
+		self.CrackPassword()
+		self.DisplayResults()		
 
-if __name__ == '__main__':
-	zipRip()
+if (__name__ == "__main__"):
+	def Initiate():
+		try:
+			ZipRip().Rip()
+		except KeyboardInterrupt:
+			quit()
+
+	Command().Clear()
+	Initiate()
